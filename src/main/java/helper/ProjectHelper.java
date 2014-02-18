@@ -31,7 +31,9 @@ public class ProjectHelper {
 	private String dbDriver = "com.mysql.jdbc.Driver";
 	private String username = "root";
 	private String password = "111111";
-	private String URL = "jdbc:mysql://192.168.1.55/Rideo";
+	// my database: jdbc:mysql://localhost/Rideo
+	// tcl database: jdbc:mysql://192.168.1.55/Rideo
+	private String URL = "jdbc:mysql://192.168.1.55:3306/Rideo";
 
 	public Connection connectDatabase() {
 		Connection connection = null;
