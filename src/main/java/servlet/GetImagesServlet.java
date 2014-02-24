@@ -1,7 +1,10 @@
 package servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,7 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import process.CatalogProcess;
+import process.LikeProcess;
 import process.PaginationProcess;
+import beans.MovieBean;
 import beans.PictureBean;
 
 /**
@@ -19,16 +25,20 @@ import beans.PictureBean;
 @WebServlet("/show")
 public class GetImagesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	final int NUMBER_OF_PER_PAGE = 5;
-	int records_number, pages_number, current_page;
-	int group_current;
-	PaginationProcess pp = new PaginationProcess();
+	final int NUMBER_OF_PER_PAGE = 15;
+
+//	int records_number, pages_number, current_page;
+//	int groups, group_current;
+//	String movie_id = "";
+//	PaginationProcess pp = new PaginationProcess();
+//	CatalogProcess cp = new CatalogProcess();
+//	MovieBean current_movie = null;
 
 	public GetImagesServlet() {
 		super();
-		current_page = 1;
-		group_current= 1;
-		setPageNum(group_current+"");
+//		current_page = 1;
+//		group_current = 1;
+//		setPageNum();
 	}
 
 	protected void doGet(HttpServletRequest request,
@@ -38,72 +48,187 @@ public class GetImagesServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		// PicDao picDao = new PicDao();
-		// List<PictureBean> pictures = picDao.getAllEntries();
-		// int currentPage =
-		// Integer.parseInt(request.getParameter("currentPage"));
-		String operation = request.getParameter("operation");
-		String group = request.getParameter("group");
-		
-
-		if (group == null) {
-			group = group_current + "";
-		}else{
-			if(Integer.parseInt(group) != group_current){
-				setPageNum(group);
-				group_current = Integer.parseInt(group);
-				current_page = 1;
-			}
-		}
-		
-	
-
-		System.out.println("operation : " + operation);
-		if (operation != null && operation.equals("next")) {
-			if (GoodOrNotServlet.memory != null) {
-				GoodOrNotServlet.memory.clear();
-			}
-
-			current_page++;
-
-		} else if (operation != null && operation.equals("prev")) {
-			if (GoodOrNotServlet.memory != null
-					&& !GoodOrNotServlet.memory.isEmpty()) {
-				GoodOrNotServlet.memory.clear();
-			}
-			current_page--;
-		} else if (operation != null && operation.equals("saveNext")) {
-			current_page++;
-			if (GoodOrNotServlet.memory != null
-					&& !GoodOrNotServlet.memory.isEmpty()) {
-				GoodOrNotServlet.lp.updateByMap(GoodOrNotServlet.memory);
-				GoodOrNotServlet.memory.clear();
-			}
-
-		}
-
-		List<PictureBean> pictures = pp.getPicturesByPage(current_page,
-				NUMBER_OF_PER_PAGE, group);
-		HttpSession hs = request.getSession();
-		hs.setAttribute("pictures", pictures);
-		// request.getRequestDispatcher("main.jsp?currentPage="+current_page+"&pages="+pages_number).forward(request,
-		// response);
-		response.sendRedirect("main.jsp?currentPage=" + current_page
-				+ "&pages=" + pages_number + "&group=Group " + group);
+		myPost(request, response);
 	}
 	
-	public void setPageNum(String g){
-		records_number = pp.getRecords(g);
-		if (records_number < NUMBER_OF_PER_PAGE) {
-			pages_number = 1;
-		}else {
-			if(records_number % NUMBER_OF_PER_PAGE == 0){
-				pages_number = records_number / NUMBER_OF_PER_PAGE;
-			}else{
-				pages_number = records_number / NUMBER_OF_PER_PAGE + 1;
+	
+	
+	public void myPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List<PictureBean> pictures = null;
+		String url = "main.jsp";
+		String operation = request.getParameter("operation");
+		HttpSession hs = request.getSession();
+		LikeProcess lp = new LikeProcess();
+		PaginationProcess pp = new PaginationProcess();
+		CatalogProcess cp = new CatalogProcess();
+		if(operation != null && operation.equals("next")) {
+			dealWithSessionExpired(hs,response);
+			if (hs.getAttribute("memory") != null) {
+				((Map<String, Object>)hs.getAttribute("memory")).clear();
 			}
 			
+			int currentPage =((Integer)hs.getAttribute("current_page")).intValue();
+			int pages_num = ((Integer)hs.getAttribute("pages_num")).intValue();
+			if(currentPage < pages_num ){
+				hs.setAttribute("current_page",++currentPage);
+			}
+			//get next page gossip
+			pictures = this.getPicture(hs);
+			
+		}else if (operation != null && operation.equals("prev")) {
+			dealWithSessionExpired(hs,response);
+			if (request.getSession().getAttribute("memory") != null) {
+				((Map<String, Object>)hs.getAttribute("memory")).clear();
+			}
+			
+			int currentPage =((Integer)hs.getAttribute("current_page")).intValue();
+			if(currentPage > 1){
+				hs.setAttribute("current_page",--currentPage );
+			}
+			//get prev page gossip
+			pictures = this.getPicture(hs);
+			
+		}else if (operation != null && operation.equals("saveNext")) {
+			dealWithSessionExpired(hs,response);
+			Map<String, Object> memory =(Map<String, Object>) hs.getAttribute("memory");
+			int currentPage =((Integer)hs.getAttribute("current_page")).intValue();
+			int pages_num = ((Integer)hs.getAttribute("pages_num")).intValue();
+			if(currentPage < pages_num ){
+				hs.setAttribute("current_page",++currentPage);
+			}
+			if (memory != null && ! memory.isEmpty()) {
+				lp.updateByMap(memory);
+				memory.clear();
+			}
+			
+			pictures = this.getPicture(hs);
+			
+		}else if(operation != null && operation.equals("showAll")){
+			
+			Map<String, Object> memory = new LinkedHashMap<String, Object>();
+			
+			List<MovieBean> movies = cp.getMovies();
+			hs.setAttribute("movies",movies);
+			hs.setAttribute("current_page", 1);
+			hs.setAttribute("pages_num", getPages());
+			hs.setAttribute("memory", memory);
+			
+			pictures = pp.getPicturesByPage(1, NUMBER_OF_PER_PAGE);
+			
+		}else if (operation != null && operation.equals("chooseMovie")) {
+			dealWithSessionExpired(hs,response);
+			hs.setAttribute("current_page",1);
+			String movie_id = request.getParameter("movie_id");
+			hs.setAttribute("pages_num", getPages(movie_id));
+			MovieBean cm = getCurrentMovie(movie_id, (List<MovieBean>)hs.getAttribute("movies"));
+			hs.setAttribute("groups", cm.getGroups()+"");
+			hs.setAttribute("current_group","Choose Group");
+			hs.setAttribute("current_movie", cm );
+			
+			pictures = pp.getPicturesByPage(1, NUMBER_OF_PER_PAGE, movie_id);
+			//get movie related gossip 
+		}else if(operation != null && operation.equals("chooseGroup")){
+			dealWithSessionExpired(hs,response);
+			String group = request.getParameter("group");
+			hs.setAttribute("current_group", group);
+			String movie_id = ((MovieBean)hs.getAttribute("current_movie")).getMovie_id();
+			hs.setAttribute("pages_num",  getPages(movie_id,group));
+			hs.setAttribute("current_page", 1);
+			pictures = this.getPicture(hs);
+			
+		}
+		request.setAttribute("pictures", pictures);
+		request.getRequestDispatcher(url).forward(request,response);
+	}
+	
+	
+	
+	
+	public MovieBean getCurrentMovie(String movie_id , List<MovieBean> movies){
+		MovieBean currentM = null;
+		for (MovieBean m : movies) {
+			if (movie_id.equals(m.getMovie_id())) {
+				currentM = m;break;
+			}
+		}
+		
+		return currentM;
+	}
+	
+	public void dealWithSessionExpired(HttpSession hs, HttpServletResponse r) throws IOException{
+		if(hs.getAttribute("current_page") == null){
+			r.sendRedirect("index.jsp");
 		}
 	}
+	
+	
+	public int getPages(String movie_id, String group_id){
+		PaginationProcess pp = new PaginationProcess();
+		int recordsNum = pp.getRecords(movie_id,group_id);
+		int pagesNum = 0;
+		if (recordsNum < NUMBER_OF_PER_PAGE) {
+			pagesNum = 1;
+		} else {
+			if (recordsNum % NUMBER_OF_PER_PAGE == 0) {
+				pagesNum = recordsNum / NUMBER_OF_PER_PAGE;
+			} else {
+				pagesNum = recordsNum / NUMBER_OF_PER_PAGE + 1;
+			}
+
+		}
+		return pagesNum;
+	}
+	
+	public int getPages(String movie_id){
+		PaginationProcess pp = new PaginationProcess();
+		int recordsNum = pp.getRecords(movie_id);
+		int pagesNum = 0;
+		if (recordsNum < NUMBER_OF_PER_PAGE) {
+			pagesNum = 1;
+		} else {
+			if (recordsNum % NUMBER_OF_PER_PAGE == 0) {
+				pagesNum = recordsNum / NUMBER_OF_PER_PAGE;
+			} else {
+				pagesNum = recordsNum / NUMBER_OF_PER_PAGE + 1;
+			}
+
+		}
+		return pagesNum;
+	}
+	
+	public int getPages(){
+		PaginationProcess pp = new PaginationProcess();
+		int recordsNum = pp.getRecords();
+		int pagesNum = 0;
+		if (recordsNum < NUMBER_OF_PER_PAGE) {
+			pagesNum = 1;
+		} else {
+			if (recordsNum % NUMBER_OF_PER_PAGE == 0) {
+				pagesNum = recordsNum / NUMBER_OF_PER_PAGE;
+			} else {
+				pagesNum = recordsNum / NUMBER_OF_PER_PAGE + 1;
+			}
+
+		}
+		return pagesNum;
+	}
+	
+	public List<PictureBean> getPicture(HttpSession hs){
+		PaginationProcess pp = new PaginationProcess();
+		MovieBean mb = (MovieBean)hs.getAttribute("current_movie");
+		String group = (String)hs.getAttribute("current_group");
+		List<PictureBean> pictures = new ArrayList<PictureBean>();
+		
+		if(mb != null &&  group != null && !group.equals("Choose Group")){
+			pictures = pp.getPicturesByPage((Integer)hs.getAttribute("current_page"), NUMBER_OF_PER_PAGE,group,mb.getMovie_id());
+		}else if(mb!=null && (group == null || group.equals("Choose Group"))){
+			pictures = pp.getPicturesByPage((Integer)hs.getAttribute("current_page"), NUMBER_OF_PER_PAGE,mb.getMovie_id());
+		}else{
+			pictures = pp.getPicturesByPage((Integer)hs.getAttribute("current_page"), NUMBER_OF_PER_PAGE);
+		}
+		
+		return pictures;
+	}
+
 
 }

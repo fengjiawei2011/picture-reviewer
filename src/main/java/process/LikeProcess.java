@@ -1,9 +1,10 @@
 package process;
 
+import helper.DBConnectionHelper;
 import helper.ProjectHelper;
 
 import java.sql.Connection;
-//import java.sql.SQLException;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +18,8 @@ public class LikeProcess {
 		Set<Entry<String, Object>> set = map.entrySet();
 		Iterator<Entry<String, Object>> i = set.iterator();
 		ProjectHelper helper = new ProjectHelper();
-		Connection con = helper.connectDatabase();
+		DBConnectionHelper dbHelper = new DBConnectionHelper();
+		Connection con = dbHelper.connectDatabase();
 		//PicDao p_dao = new PicDao();
 		
 		while(i.hasNext()){
@@ -27,14 +29,14 @@ public class LikeProcess {
 			p_dao.updateLike(con, key_id, value_isLike);
 		}
 		
-		ProjectHelper.closeConnection(con);
+		DBConnectionHelper.closeConnection(con);
 		
 	}
 	
 	public void update(String id, int isLike ){
-		Connection con = new ProjectHelper().connectDatabase();
+		Connection con = new DBConnectionHelper().connectDatabase();
 		p_dao.updateLike(con, id, isLike);
-		ProjectHelper.closeConnection(con);
+		DBConnectionHelper.closeConnection(con);
 	}
 
 }
