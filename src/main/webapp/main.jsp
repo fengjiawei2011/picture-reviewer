@@ -13,6 +13,11 @@
 	int currentPage =  (Integer)session.getAttribute("current_page");
 	int pages = (Integer)session.getAttribute("pages_num");
 	MovieBean current_movie = (MovieBean)session.getAttribute("current_movie");
+	String mid = "";
+	if(current_movie != null){
+		 mid = current_movie.getMovie_id();
+	}
+	
 	//System.out.println("currentpage --->" + currentPage);
 	//System.out.println("pictures size--->" + pictures.size());
 %>
@@ -164,6 +169,42 @@
 			return false;
 		}
 	};
+	
+	
+	
+	$(document).ready(function(){
+		
+		$('#getjson').click(function(e) {
+			console.log("I am in");
+			e.preventDefault();
+
+			var movie_id = $('#current_movie_id').text();
+			console.log("movie_id = " + movie_id);
+			var ajaxObj = {
+				type : "POST",
+				url : "http://localhost:8080/picture-reviewer/myrest/jsonservice/getjson/"+movie_id,
+				dataType : "json",
+				//data : JSON.stringify($('#login_form').serializeObject()),
+				//contentType:"application/json",
+
+				success : function(data) {
+					
+					//console.log("success");
+					alert("issue successfully");
+					//$('#getjson').addClass('disabled');
+					//return false;
+					//console.log(JSON.stringify(data));
+
+				},
+				error : function() {
+					console.log("error");
+				}
+			};
+			$.ajax(ajaxObj);
+			
+		});
+	});
+	
 </script>
 
 <link rel="shortcut icon"
@@ -178,6 +219,7 @@
 	<header id="header"> <!--  <h1>Picture Review</h1>-->
 	<div>
 		<ul class="pager">
+			<li id="getjson"><a style="cursor: pointer;">Issue</a></li>
 			<li><a href="#" onclick="save()">save</a></li>
 			<li id="prev"><a href="show?operation=prev"
 				onclick="return prev()">Previous</a></li>
@@ -260,7 +302,6 @@
 				<a style="cursor: pointer;" id="<%=pictures.get(i).getId()%>"
 					onclick="like('<%=pictures.get(i).getId()%>')"><%=interest%></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<a href="<%=pictures.get(i).getSource()%>">source</a>
-
 			</div>
 			
 		</div>
@@ -271,8 +312,8 @@
 			}
 		%>
 	</div>
-
-	--> </section>
+	<div style="visibility: hidden;" id="current_movie_id"><%=mid %></div>
+	</section>
 
 </body>
 

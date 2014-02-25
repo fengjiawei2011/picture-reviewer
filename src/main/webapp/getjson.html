@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="js/jquery-1.7.2.min.js"></script>
+</head>
+<script type="text/javascript">
+$(document).ready(function() {
+	//var $login_form = $('#login_form');
+
+	$('#getjson').click(function(e) {
+		console.log("I am in");
+		e.preventDefault();
+		var movie_id = $('#movie_id').text();
+		//var jsObj = $login_form.serializeObject();
+		var ajaxObj = {
+			type : "POST",
+			url : "http://localhost:8080/picture-reviewer/myrest/jsonservice/getjson/"+movie_id,
+			dataType : "json",
+			//data : JSON.stringify($('#login_form').serializeObject()),
+			//contentType:"application/json",
+
+			success : function(data) {
+				console.log("success");
+				console.log(JSON.stringify(data));
+				//for(var i = 0; i<data.length;i++){console.log(data[i]);}
+				
+			},
+			error : function() {
+				console.log("error");
+			}
+		};
+		$.ajax(ajaxObj);
+	});
+
+});
+</script>
+<body>
+
+<button id="getjson" >Get JSON</button>
+<div id="movie_id">3bf58bdc-0f7c-4525-bc57-539a97509343</div>
+
+</body>
+</html>

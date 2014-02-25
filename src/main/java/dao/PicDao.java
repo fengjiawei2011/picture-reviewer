@@ -2,6 +2,7 @@ package dao;
 
 import helper.DBConnectionHelper;
 import helper.ProjectHelper;
+import helper.ToJSON;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,6 +11,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.google.gson.JsonObject;
 import com.sun.accessibility.internal.resources.accessibility;
 
 import beans.MovieBean;
@@ -363,6 +368,61 @@ public class PicDao {
 			System.out.println("update like error ");
 		}
 
+	}
+	
+	public JSONArray getPicJSONArray(String movie_id) throws Exception{
+		
+		JSONArray json = new JSONArray();
+		//JSONObject j = new JSONObject();
+		List<PictureBean> pictures = new ArrayList<PictureBean>();
+		ToJSON tojson = new ToJSON();
+		// ProjectHelper helper = new ProjectHelper();
+		DBConnectionHelper dbHelper = new DBConnectionHelper();
+		Connection con = dbHelper.connectDatabase();
+		Statement s = null;
+		ResultSet rs = null;
+
+		String sql = "select * from " + dbHelper.getTable() + " where movie_id='" + movie_id+"' and interesting = 1" ;
+		try {
+			s = con.createStatement();
+			rs = s.executeQuery(sql);
+			int i = 0 ; 
+			while(rs.next()){
+				JSONObject issue_json = new JSONObject();
+				issue_json.put("id", i+"");
+				issue_json.put("name", "fff");
+				issue_json.put("description", rs.getString("alt"));
+				issue_json.put("destUrl", rs.getString("source"));
+				JSONArray temp = new JSONArray(); 
+			//	JSONObject obj = new JSONObject();
+				temp.put(rs.getString("url"));
+				issue_json.put("images",temp);
+				issue_json.put("category", "");
+				//issue_json.put("tags", "");
+				issue_json.put("levelOfInterest",1);
+				i++;
+				json.put(issue_json);
+			}
+			//json = tojson.toJSONArray(rs);
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				DBConnectionHelper.closeResultSet(rs);
+			}
+			if (s != null) {
+				DBConnectionHelper.closeStatement(s);
+			}
+			if (con != null) {
+				DBConnectionHelper.closeConnection(con);
+			}
+
+		}
+		return json;
+		
+		
 	}
 
 }
