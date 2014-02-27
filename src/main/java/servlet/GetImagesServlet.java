@@ -137,6 +137,13 @@ public class GetImagesServlet extends HttpServlet {
 			pictures = this.getPicture(hs);
 			
 		}
+//		else if(operation != null && operation.equals("reviewAllLike")){
+//			hs.setAttribute("reviewAllLike", "1"); 
+//			hs.setAttribute("current_page", 1); 
+//			pictures = this.getPicture(hs);
+//		}
+		
+		
 		request.setAttribute("pictures", pictures);
 		request.getRequestDispatcher(url).forward(request,response);
 	}

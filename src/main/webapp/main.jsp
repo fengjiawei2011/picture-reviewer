@@ -262,6 +262,7 @@
 				</div>
 		   </li>
 		   <%} %>
+		   <li><a href="http://192.168.1.166/PictureReview/show?operation=showAll">Review Interested</a></li>
 		</ul>
 	</div>
 	<div class="clearfix"></div>

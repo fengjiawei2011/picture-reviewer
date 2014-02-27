@@ -22,13 +22,14 @@ public class MyRest {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getJSON(@PathParam("movie_id") String movie_id) throws Exception{
 		
-//		System.out.println(" i am in my rest!");
+		System.out.println(" i am in my rest!");
 		PicDao dao = new PicDao();
 		JSONArray json = dao.getPicJSONArray(movie_id);
 		
 		JSONObject issue_json = new JSONObject();
 		issue_json.put("videoId", movie_id);
 		issue_json.put("objects", json);
+		System.out.println(issue_json.toString());
 		new Issue().issueByJSON(issue_json, movie_id);
 		System.out.println(issue_json.toString());
 

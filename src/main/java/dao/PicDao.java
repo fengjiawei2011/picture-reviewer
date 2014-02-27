@@ -14,10 +14,6 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.google.gson.JsonObject;
-import com.sun.accessibility.internal.resources.accessibility;
-
-import beans.MovieBean;
 import beans.PictureBean;
 
 public class PicDao {
@@ -382,7 +378,7 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from " + dbHelper.getTable() + " where movie_id='" + movie_id+"' and interesting = 1" ;
+		String sql = "select * from " + dbHelper.getTable() + " where movie_id='" + movie_id+"' and interesting = 1 " ;
 		try {
 			s = con.createStatement();
 			rs = s.executeQuery(sql);
@@ -390,7 +386,7 @@ public class PicDao {
 			while(rs.next()){
 				JSONObject issue_json = new JSONObject();
 				issue_json.put("id", i+"");
-				issue_json.put("name", "fff");
+				issue_json.put("name", rs.getString("title"));
 				issue_json.put("description", rs.getString("alt"));
 				issue_json.put("destUrl", rs.getString("source"));
 				JSONArray temp = new JSONArray(); 
@@ -403,6 +399,8 @@ public class PicDao {
 				i++;
 				json.put(issue_json);
 			}
+			System.out.println("the number of data ---->"+i);
+			//System.out.println(json.toString());
 			//json = tojson.toJSONArray(rs);
 
 		} catch (SQLException e) {
