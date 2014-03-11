@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -114,6 +115,7 @@ public class GetImagesServlet extends HttpServlet {
 			hs.setAttribute("memory", memory);
 			
 			pictures = pp.getPicturesByPage(1, NUMBER_OF_PER_PAGE);
+			pictures = random(pictures);
 			
 		}else if (operation != null && operation.equals("chooseMovie")) {
 			dealWithSessionExpired(hs,response);
@@ -126,6 +128,7 @@ public class GetImagesServlet extends HttpServlet {
 			hs.setAttribute("current_movie", cm );
 			
 			pictures = pp.getPicturesByPage(1, NUMBER_OF_PER_PAGE, movie_id);
+			pictures = random(pictures);
 			//get movie related gossip 
 		}else if(operation != null && operation.equals("chooseGroup")){
 			dealWithSessionExpired(hs,response);
@@ -234,8 +237,38 @@ public class GetImagesServlet extends HttpServlet {
 			pictures = pp.getPicturesByPage((Integer)hs.getAttribute("current_page"), NUMBER_OF_PER_PAGE);
 		}
 		
-		return pictures;
+		return random(pictures);
 	}
-
-
+	
+	public List<PictureBean> random(List<PictureBean> p){
+		int range = p.size();
+		PictureBean[] pictures= new PictureBean[range];
+		List<PictureBean> random_p = new ArrayList<PictureBean>();
+		Random random = new Random();
+		
+		
+		int randomInt = 0;
+		for(int i = 0; i<range; i++){
+			randomInt = random.nextInt(range);
+			System.out.println("random number is "+ randomInt);
+			if(pictures[randomInt] == null){
+				pictures[randomInt] = p.get(i);
+			}else{
+				randomInt = 0;
+				while(pictures[randomInt] != null){
+					System.out.println(" pictures["+ randomInt+"] has value!");
+					randomInt ++;
+				}
+				System.out.println("------> pictures["+ randomInt+"] is null!");
+				pictures[randomInt] = p.get(i);
+			}
+		}
+		
+		for(int i =0;i<range;i++){
+			random_p.add(pictures[i]);
+		}
+		return random_p;
+		
+	}
+	
 }

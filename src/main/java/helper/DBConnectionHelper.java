@@ -11,10 +11,11 @@ public class DBConnectionHelper {
 	private String dbDriver = "com.mysql.jdbc.Driver";
 	private String username = "root";
 	private String password = "111111";
-	private String URL = "jdbc:mysql://192.168.1.55:3306/Rideo";
+	private String URL = "jdbc:mysql://192.168.1.55:3306/Minterest";
 //	private String password = "root";
 //	private String URL = "jdbc:mysql://localhost/Rideo";
-	private String table = "Published_ImRep";
+	private String table = "Minterest.Rideo";
+	private String table_movie = "ContentDiary.movie";
 	
 //	private String URL_ContentDiary = "jdbc:mysql://192.168.1.55:3306/ContentDiary";
 //	private String table_ContentDiary = "movie";
@@ -77,8 +78,14 @@ public class DBConnectionHelper {
 //	public String getTable_ContentDiary() {
 //		return table_ContentDiary;
 //	}
+	
+	
 
 	public String getTable() {
 		return table;
+	}
+
+	public String getTable_movie() {
+		return table_movie;
 	}
 }

@@ -22,7 +22,7 @@ public class PicDao {
 		ProjectHelper helper = new ProjectHelper();
 		DBConnectionHelper dbHelper = new DBConnectionHelper();
 		Connection con = dbHelper.connectDatabase();
-		String sql = "update " + dbHelper.getTable() + " set interesting = "
+		String sql = "update " + dbHelper.getTable() + " set is_interesting = "
 				+ isLike + "where id='" + id + "'";
 		System.out.println(sql);
 		try {
@@ -43,8 +43,8 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from " + dbHelper.getTable() + " where group="
-				+ group_id + "and movie_id = '" + movie_id + "'";
+		String sql = "select * from " + dbHelper.getTable() + " m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id where group_num="
+				+ group_id + "and m_id = '" + movie_id + "'";
 		System.out.println(sql);
 		try {
 			s = con.createStatement();
@@ -77,8 +77,8 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from " + dbHelper.getTable() + " where `group`="
-				+ group + " and movie_id='"+movie_id+"' limit " + begin + "," + pages;
+		String sql = "select * from " + dbHelper.getTable() +  " m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id where `group_num`="
+				+ group + " and m_id='"+movie_id+"' limit " + begin + "," + pages;
 		System.out.println(sql);
 		try {
 			s = con.createStatement();
@@ -111,7 +111,7 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from " + dbHelper.getTable() + " where  movie_id='"+movie_id+"' limit " + begin + "," + pages;
+		String sql = "select * from " + dbHelper.getTable() + " m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id where  m_id='"+movie_id+"' limit " + begin + "," + pages;
 		System.out.println(sql);
 		try {
 			s = con.createStatement();
@@ -144,7 +144,7 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from " + dbHelper.getTable() + " limit " + begin + "," + pages;
+		String sql = "select * from " + dbHelper.getTable() + " m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id limit " + begin + "," + pages;
 		System.out.println(sql);
 		try {
 			s = con.createStatement();
@@ -177,7 +177,7 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from" + dbHelper.getTable();
+		String sql = "select * from" + dbHelper.getTable()+" m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id";
 		try {
 			s = con.createStatement();
 			rs = s.executeQuery(sql);
@@ -217,12 +217,12 @@ public class PicDao {
 			while (rs.next()) {
 
 				PictureBean pb = new PictureBean();
-				pb.setFrom(rs.getString("from"));
-				pb.setGroup(rs.getInt("group"));
+				pb.setFrom(rs.getString("source_type"));
+				pb.setGroup(rs.getInt("group_num"));
 				pb.setId(rs.getInt("id"));
-				if (rs.getInt("interesting") == 0
-						|| rs.getInt("interesting") == 1) {
-					pb.setInteresting(rs.getInt("interesting"));
+				if (rs.getInt("is_interesting") == 0
+						|| rs.getInt("is_interesting") == 1) {
+					pb.setInteresting(rs.getInt("is_interesting"));
 				} else {
 					pb.setInteresting(0);
 				}
@@ -230,11 +230,11 @@ public class PicDao {
 				//String local_add = rs.getString("local_add").replace("rideo", "test_rideo");
 				String local_add = rs.getString("local_add");
 				pb.setLocal_add(local_add);
-				pb.setSource(rs.getString("source"));
+				pb.setSource(rs.getString("source_link"));
 				pb.setTitle(rs.getString("title"));
-				pb.setUrl(rs.getString("url"));
-				pb.setAlt(rs.getString("alt"));
-				pb.setMovie_id(rs.getString("movie_id"));
+				pb.setUrl(rs.getString("p_url"));
+				pb.setAlt(rs.getString("description"));
+				pb.setMovie_id(rs.getString("m_id"));
 				pb.setMovie_name(rs.getString("movie_name"));
 				/*
 				 * pb.setImg_id(rs.getString("img_id"));
@@ -260,7 +260,7 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 		String sql = "select count(*) as num from " + dbHelper.getTable()
-				+ " where `group`=" + group+" and movie_id='"+movie_id+"'";
+				+ " where `group_num`=" + group+" and m_id='"+movie_id+"'";
 		System.out.println(sql);
 		try {
 			s = con.createStatement();
@@ -322,7 +322,7 @@ public class PicDao {
 		Connection con = dbHelper.connectDatabase();
 		Statement s = null;
 		ResultSet rs = null;
-		String sql = "select count(*) as num from "+ dbHelper.getTable()+" where movie_id = '"+movie_id+"' ";
+		String sql = "select count(*) as num from "+ dbHelper.getTable()+" where m_id = '"+movie_id+"' ";
 		System.out.println(sql);
 		try {
 			s = con.createStatement();
@@ -351,7 +351,7 @@ public class PicDao {
 		DBConnectionHelper dbHelper = new DBConnectionHelper();
 		// Connection con = helper.connectDatabase();
 		Statement s = null;
-		String sql = "update " + dbHelper.getTable() + " set interesting = "
+		String sql = "update " + dbHelper.getTable() + " set is_interesting = "
 				+ islike + " where id = '" + id + "'";
 		System.out.println(sql);
 		try {
@@ -378,7 +378,7 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from " + dbHelper.getTable() + " where movie_id='" + movie_id+"' and interesting = 1 " ;
+		String sql = "select * from " + dbHelper.getTable() + "m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id where movie_id='" + movie_id+"' and interesting = 1 limit 0, 100"  ;
 		try {
 			s = con.createStatement();
 			rs = s.executeQuery(sql);
@@ -387,11 +387,11 @@ public class PicDao {
 				JSONObject issue_json = new JSONObject();
 				issue_json.put("id", i+"");
 				issue_json.put("name", rs.getString("title"));
-				issue_json.put("description", rs.getString("alt"));
-				issue_json.put("destUrl", rs.getString("source"));
+				issue_json.put("description", rs.getString("description"));
+				issue_json.put("destUrl", rs.getString("source_link"));
 				JSONArray temp = new JSONArray(); 
 			//	JSONObject obj = new JSONObject();
-				temp.put(rs.getString("url"));
+				temp.put(rs.getString("p_url"));
 				issue_json.put("images",temp);
 				issue_json.put("category", "");
 				//issue_json.put("tags", "");
