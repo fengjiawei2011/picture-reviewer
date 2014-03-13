@@ -182,7 +182,7 @@
 			console.log("movie_id = " + movie_id);
 			var ajaxObj = {
 				type : "POST",
-				url : "http://localhost:8080/picture-reviewer/myrest/jsonservice/getjson/"+movie_id,
+				url : "http://192.168.1.166/picture-reviewer/myrest/jsonservice/getjson/"+movie_id,
 				dataType : "json",
 				//data : JSON.stringify($('#login_form').serializeObject()),
 				//contentType:"application/json",
@@ -197,6 +197,7 @@
 
 				},
 				error : function() {
+					alert("error");
 					console.log("error");
 				}
 			};

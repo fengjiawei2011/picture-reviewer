@@ -378,7 +378,9 @@ public class PicDao {
 		Statement s = null;
 		ResultSet rs = null;
 
-		String sql = "select * from " + dbHelper.getTable() + "m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id where movie_id='" + movie_id+"' and interesting = 1 limit 0, 100"  ;
+		String sql = "select * from " + dbHelper.getTable() + " m join "+dbHelper.getTable_movie()+" c on  m.m_id = c.movie_id "
+				+ "where movie_id='" + movie_id+"' and is_interesting = 1 and group_num <> 1 limit 0, 100"  ;
+		System.out.println(sql);
 		try {
 			s = con.createStatement();
 			rs = s.executeQuery(sql);
